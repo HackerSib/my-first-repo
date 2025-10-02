@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Career Explorer — Top 100 Careers (South Africa)</title>
+<style>
+  :root{--accent:#0a5;--nav:#004aad;--muted:#556;}
+  *{box-sizing:border-box}
+  body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin:0;background:#f6f8fb;color:#102;}
+  header{background:linear-gradient(90deg,#0b63b4,#004aad);color:#fff;padding:26px 18px;text-align:center}
+  h1{margin:0;font-size:26px}
+  p.lead{margin:6px 0 0;opacity:.95}
+  nav{display:flex;gap:8px;justify-content:center;padding:14px;flex-wrap:wrap;background:#fff;border-bottom:1px solid rgba(0,0,0,.06)}
+  .tab-btn{background:#fff;border:1px solid rgba(0,0,0,.06);padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--nav);font-weight:600}
+  .tab-btn.active{background:var(--nav);color:#fff}
+  main.wrap{max-width:1100px;margin:18px auto;padding:0 16px}
+  .controls{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .search input{padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.08);width:100%}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 20px rgba(12,24,48,.06);cursor:pointer;transition:transform .14s}
+  .card:hover{transform:translateY(-6px)}
+  .card h3{margin:0;font-size:15px;color:#063}
+  .card p{margin:8px 0 0;color:var(--muted);font-size:13px}
+  .detail{display:none;background:#fff;padding:18px;border-radius:12px;box-shadow:0 18px 40px rgba(2,10,20,.12);margin-top:18px}
+  .detail h2{margin:0 0 8px}
+  .detail .meta{color:var(--muted);margin-bottom:8px}
+  .close{float:right;border:0;background:#e04;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  footer{padding:20px;text-align:center;color:var(--muted);margin-top:18px}
+  @media (max-width:640px){.controls{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Career Explorer — Top 100 Careers (South Africa)</h1>
+    <p class="lead">Browse popular careers, see required subjects, universities in South Africa, typical tasks, related jobs and demand.</p>
+  </div>
+</header>
+
+<nav aria-label="Personality tabs">
+  <div style="width:100%;max-width:1100px;margin:0 auto;display:flex;justify-content:center;gap:8px;padding:10px 16px;">
+    <button class="tab-btn active" data-tab="creative">Creative Innovator</button>
+    <button class="tab-btn" data-tab="analytical">Analytical Thinker</button>
+    <button class="tab-btn" data-tab="empathetic">Empathetic Communicator</button>
+    <button class="tab-btn" data-tab="strategic">Strategic Leader</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="controls">
+    <div class="search" style="flex:1">
+      <input id="search" placeholder="Search careers (e.g. doctor, engineer, teacher)"/>
+    </div>
+    <button id="reset" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.06);background:#fff;cursor:pointer">Reset</button>
+    <button id="testBtn" style="padding:10px 14px;border-radius:10px;border:0;background:#0a5;color:#fff;cursor:pointer">Test What Career Suits You</button>
+  </div>
+
+  <div id="list" class="grid"></div>
+
+  <div id="empty" style="display:none;padding:40px;border-radius:12px;background:#fff;text-align:center;color:var(--muted);margin-top:12px">No careers found.</div>
+
+  <div id="detail" class="detail" role="dialog" aria-modal="true">
+    <button class="close" id="closeDetail">Close</button>
+    <h2 id="d-name"></h2>
+    <div class="meta"><strong>Personality fit:</strong> <span id="d-personality"></span></div>
+    <div><strong>Subjects:</strong> <span id="d-subjects"></span></div>
+    <div><strong>Universities in SA:</strong> <span id="d-unis"></span></div>
+    <div style="margin-top:8px"><strong>Typical tasks:</strong> <div id="d-tasks" style="margin-top:6px;color:var(--muted)"></div></div>
+    <div style="margin-top:8px"><strong>Related careers:</strong> <span id="d-related"></span></div>
+    <div style="margin-top:8px"><strong>Demand in SA:</strong> <span id="d-demand"></span></div>
+  </div>
+</main>
+
+<footer>
+  Built for exploration — replace the test button link with your quiz when ready. Data aims to be realistic for South Africa.
+</footer>
+
+<script>
+/* Top 100 popular SA careers — each object:
+ name, personality (array), subjects (array), universities (array), tasks (string), related (array), demand (string)
+*/
+const careers = [
+  {name:"General Practitioner (Doctor)", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Chemistry","Mathematics"], universities:["University of Cape Town","University of the Witwatersrand","University of Pretoria"], tasks:"Diagnose and treat common illnesses, refer patients to specialists, manage patient records and preventive care.", related:["Specialist Doctor","Medical Researcher","Clinical Pharmacist"], demand:"High — especially in public sector and rural areas."},
+  {name:"Registered Nurse", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Life Sciences","Biology","Health Sciences"], universities:["University of Pretoria","University of the Witwatersrand","Stellenbosch University"], tasks:"Provide patient care, administer medication, assist doctors, monitor vital signs and educate patients.", related:["Nurse Practitioner","Midwife","Critical Care Nurse"], demand:"High across hospitals and clinics."},
+  {name:"Clinical Psychologist", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Psychology","Biology","Statistics"], universities:["University of Cape Town","University of Pretoria","Stellenbosch University"], tasks:"Assess and treat mental health issues via therapy, conduct assessments, consult with families and institutions.", related:["Counsellor","Psychiatrist","Educational Psychologist"], demand:"Growing demand with increased mental health awareness."},
+  {name:"Pharmacist", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Chemistry","Biology","Pharmacology"], universities:["University of the Witwatersrand","University of KwaZulu-Natal","Stellenbosch University"], tasks:"Dispense and counsel on medications, manage pharmacy operations, support clinical teams.", related:["Clinical Pharmacist","Pharmaceutical Scientist","Pharmacy Technician"], demand:"High in community and hospital pharmacies."},
+  {name:"Dentist", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Chemistry","Anatomy"], universities:["University of the Witwatersrand","University of Pretoria","Stellenbosch University"], tasks:"Assess oral health, perform restorations/extractions, provide preventive advice and manage dental clinics.", related:["Oral Surgeon","Dental Hygienist","Orthodontist"], demand:"Steady; needs in public dental services."},
+  {name:"Surgeon (Specialist)", personality:["Analytical Thinker","Strategic Leader"], subjects:["Biology","Chemistry","Physics"], universities:["University of Cape Town","University of the Witwatersrand","University of Pretoria"], tasks:"Perform surgical procedures, manage surgical teams, consult on complex cases.", related:["Anaesthetist","Operating Theatre Nurse","Surgical Technician"], demand:"High for specialists; long training pathway."},
+  {name:"Medical Laboratory Scientist", personality:["Analytical Thinker"], subjects:["Biology","Chemistry","Microbiology"], universities:["University of Pretoria","Stellenbosch University","University of the Witwatersrand"], tasks:"Process diagnostic tests, analyse samples, ensure lab quality control and report results.", related:["Pathologist","Biomedical Scientist","Clinical Researcher"], demand:"Good — essential in healthcare diagnostics."},
+  {name:"Dentist Specialist (Orthodontist)", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Chemistry","Anatomy"], universities:["University of the Witwatersrand","University of Pretoria"], tasks:"Correct dental alignment, treat complex orthodontic cases, plan long-term treatment.", related:["Dentist","Maxillofacial Surgeon"], demand:"Moderate to high in private practice."},
+  {name:"Software Engineer / Developer", personality:["Analytical Thinker","Creative Innovator"], subjects:["Computer Science","Mathematics","Information Technology"], universities:["University of Cape Town","University of the Witwatersrand","Stellenbosch University"], tasks:"Design, develop and maintain software systems, test and deploy applications.", related:["Full-Stack Developer","DevOps Engineer","Mobile Developer"], demand:"Very high — growing tech sector."},
+  {name:"Data Scientist / Analyst", personality:["Analytical Thinker"], subjects:["Mathematics","Statistics","Computer Science"], universities:["University of Cape Town","Stellenbosch University","University of Pretoria"], tasks:"Analyse datasets, build models, visualise insights and advise decisions.", related:["Data Analyst","Machine Learning Engineer","Business Intelligence Analyst"], demand:"High across finance, retail and tech."},
+  {name:"Systems Administrator / Network Administrator", personality:["Analytical Thinker"], subjects:["Information Technology","Computer Studies","Mathematics"], universities:["University of Johannesburg","Cape Peninsula University of Technology","University of Pretoria"], tasks:"Maintain servers and networks, ensure uptime, manage security and backups.", related:["Cloud Engineer","Network Engineer","IT Support"], demand:"High in companies and public sector."},
+  {name:"Cybersecurity Specialist", personality:["Analytical Thinker","Strategic Leader"], subjects:["Computer Science","Information Security","Networking"], universities:["University of Johannesburg","University of the Witwatersrand","University of Pretoria"], tasks:"Protect systems from attacks, monitor incidents, implement security policies and response plans.", related:["Security Analyst","Penetration Tester","Forensics Analyst"], demand:"Rapidly growing demand."},
+  {name:"Electrical Engineer", personality:["Analytical Thinker"], subjects:["Mathematics","Physical Science","Engineering Graphics"], universities:["University of Cape Town","University of Pretoria","Stellenbosch University"], tasks:"Design electrical systems, power distribution and electronic devices.", related:["Electronics Engineer","Power Systems Engineer","Controls Engineer"], demand:"High in energy and manufacturing."},
+  {name:"Mechanical Engineer", personality:["Analytical Thinker","Creative Innovator"], subjects:["Mathematics","Physical Science","Engineering Graphics"], universities:["University of Pretoria","University of the Witwatersrand","Stellenbosch University"], tasks:"Design mechanical systems, oversee manufacture and maintenance of machines.", related:["Automotive Engineer","Maintenance Engineer","Aerospace Engineer"], demand:"Stable demand in manufacturing and mining."},
+  {name:"Civil Engineer", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Physical Science","Engineering Graphics"], universities:["University of Pretoria","Stellenbosch University","University of Cape Town"], tasks:"Plan and design infrastructure: roads, bridges, water and buildings.", related:["Structural Engineer","Geotechnical Engineer","Construction Manager"], demand:"High due to infrastructure projects."},
+  {name:"Chemical Engineer", personality:["Analytical Thinker"], subjects:["Chemistry","Mathematics","Process Engineering"], universities:["University of Cape Town","University of the Witwatersrand","University of Pretoria"], tasks:"Design chemical processes for manufacturing, scale-up and safety.", related:["Process Engineer","Materials Scientist","Environmental Engineer"], demand:"Good in petrochemicals and manufacturing."},
+  {name:"Environmental Scientist / Engineer", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Chemistry","Geography"], universities:["Stellenbosch University","University of Cape Town","University of Pretoria"], tasks:"Assess environmental impact, advise on conservation and pollution control.", related:["Hydrologist","Ecologist","Environmental Consultant"], demand:"Growing with sustainability priorities."},
+  {name:"Civil / Structural Technician", personality:["Analytical Thinker"], subjects:["Technical Drawing","Mathematics","Engineering Technology"], universities:["TVET colleges, Cape Peninsula University of Technology"], tasks:"Support engineers with plans, site measurements and technical checks.", related:["Technician","Surveyor","Construction Supervisor"], demand:"Strong in construction sector."},
+  {name:"Architect", personality:["Creative Innovator","Analytical Thinker"], subjects:["Mathematics","Art","Design"], universities:["University of Pretoria","University of Cape Town","Nelson Mandela University"], tasks:"Design buildings, combine aesthetics with practical engineering.", related:["Urban Planner","Interior Designer","Landscape Architect"], demand:"Moderate to high depending on property market."},
+  {name:"Urban Planner / Town Planner", personality:["Strategic Leader","Analytical Thinker"], subjects:["Geography","Economics","Planning"], universities:["University of Cape Town","University of Pretoria","Stellenbosch University"], tasks:"Plan land use, zoning and development to create sustainable cities.", related:["Transport Planner","Environmental Planner"], demand:"Good at municipal and development level."},
+  {name:"Quantity Surveyor", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Economics","Construction Studies"], universities:["University of Pretoria","University of the Witwatersrand","Cape Peninsula University of Technology"], tasks:"Manage construction costs, contracts and procurement.", related:["Cost Consultant","Project Manager"], demand:"Strong in construction projects."},
+  {name:"Project Manager (construction/IT)", personality:["Strategic Leader","Analytical Thinker"], subjects:["Business Studies","Mathematics","Project Management"], universities:["University of Pretoria","University of Johannesburg","Stellenbosch University"], tasks:"Plan and deliver projects, manage budgets and stakeholders.", related:["Program Manager","Construction Manager"], demand:"Consistent across industries."},
+  {name:"Pilot (Commercial)", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Physics","Aviation"], universities:["Flight training schools, University of Pretoria (aviation links)"], tasks:"Operate aircraft safely, plan flights and ensure compliance.", related:["Flight Instructor","Air Traffic Controller"], demand:"Moderate; cyclical with airline health."},
+  {name:"Air Traffic Controller", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Physics","Aviation Studies"], universities:["Air Traffic and Navigation Services training"], tasks:"Manage air traffic, communicate with pilots and ensure safe spacing.", related:["Aviation Operations"], demand:"Specialised and essential."},
+  {name:"Veterinarian", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Biology","Chemistry","Animal Science"], universities:["University of Pretoria (Onderstepoort)"], tasks:"Diagnose and treat animal health, work in farms, clinics or wildlife.", related:["Veterinary Technician","Animal Nutritionist"], demand:"Good in mixed practice and conservation."},
+  {name:"Agricultural Scientist / Agronomist", personality:["Analytical Thinker"], subjects:["Agriculture","Biology","Soil Science"], universities:["University of KwaZulu-Natal","University of Pretoria","Stellenbosch University"], tasks:"Improve crop/livestock yields, advise on sustainable farming.", related:["Extension Officer","Food Scientist"], demand:"Important for food security."},
+  {name:"Food Scientist / Technologist", personality:["Analytical Thinker"], subjects:["Chemistry","Biology","Food Technology"], universities:["University of Pretoria","Stellenbosch University","Cape Peninsula University of Technology"], tasks:"Develop and test food products, ensure safety and shelf-life.", related:["Quality Assurance","Product Developer"], demand:"Good in agri-processing and retail."},
+  {name:"Biotechnologist / Lab Researcher", personality:["Analytical Thinker"], subjects:["Biology","Chemistry","Biotechnology"], universities:["University of Cape Town","Stellenbosch University","University of the Witwatersrand"], tasks:"Conduct experiments, develop biotech products and assays.", related:["Lab Technician","Research Scientist"], demand:"Growing in pharma and biotech sectors."},
+  {name:"Phlebotomist / Lab Technician", personality:["Analytical Thinker"], subjects:["Biology","Life Sciences","Practical lab skills"], universities:["TVET colleges, University short courses"], tasks:"Collect samples, process tests and maintain lab equipment.", related:["Medical Laboratory Scientist","Clinical Researcher"], demand:"Good in clinical diagnostics."},
+  {name:"Radiographer / Medical Imaging", personality:["Analytical Thinker"], subjects:["Physics","Biology","Mathematics"], universities:["University of the Witwatersrand","University of Cape Town","Stellenbosch University"], tasks:"Operate imaging equipment and assist diagnosis.", related:["Sonographer","Nuclear Medicine Tech"], demand:"High in hospitals and clinics."},
+  {name:"Clinical Research Coordinator", personality:["Analytical Thinker","Strategic Leader"], subjects:["Biology","Statistics","Research Methods"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Manage clinical trials, ensure compliance and data integrity.", related:["Research Scientist","Clinical Data Manager"], demand:"Growing with medical trials."},
+  {name:"Teacher (Primary & Secondary)", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Education","Subject specialization (Maths, Science, Languages)"], universities:["UNISA","University of Pretoria","University of Johannesburg"], tasks:"Teach classes, prepare lessons, assess students and engage parents.", related:["Tutor","Educational Psychologist","Principal"], demand:"High, particularly in STEM and rural areas."},
+  {name:"University Lecturer / Researcher", personality:["Analytical Thinker","Strategic Leader"], subjects:["Subject specialization, Research Methods"], universities:["University of Cape Town","University of the Witwatersrand","Stellenbosch University"], tasks:"Teach higher education, supervise research and publish papers.", related:["Academic Researcher","Policy Analyst"], demand:"Competitive; steady in academia."},
+  {name:"Educational Psychologist", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Psychology","Education","Statistics"], universities:["University of Pretoria","University of Cape Town","Stellenbosch University"], tasks:"Assess learning needs, design interventions and advise schools.", related:["Counsellor","Special Needs Educator"], demand:"Growing with learner support needs."},
+  {name:"Social Worker", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Social Work","Sociology","Psychology"], universities:["University of Pretoria","University of the Witwatersrand","University of KwaZulu-Natal"], tasks:"Advocate for clients, coordinate support services and casework.", related:["Community Development Worker","Counsellor"], demand:"High in government and NGOs."},
+  {name:"Counsellor / Therapist", personality:["Empathetic Communicator"], subjects:["Psychology","Counselling Studies","Social Work"], universities:["University of Johannesburg","UNISA","Rhodes University"], tasks:"Provide therapy, support mental health and refer when needed.", related:["Psychologist","Clinical Social Worker"], demand:"Growing demand."},
+  {name:"Occupational Therapist", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Biology","Kinesiology","Psychology"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Help clients regain daily living skills after injury or illness.", related:["Physiotherapist","Rehabilitation Specialist"], demand:"Good in healthcare."},
+  {name:"Physiotherapist", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Biology","Human Movement Studies","Anatomy"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Rehabilitate movement, treat musculoskeletal issues and advise on exercise.", related:["Occupational Therapist","Sports Therapist"], demand:"High in private clinics and sports."},
+  {name:"Speech-Language Therapist", personality:["Empathetic Communicator"], subjects:["Linguistics","Biology","Education"], universities:["University of Pretoria","University of the Witwatersrand","Stellenbosch University"], tasks:"Assess and treat speech and language disorders.", related:["Audiologist","Educational Therapist"], demand:"Growing need in schools and clinics."},
+  {name:"Audiologist", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Physics","Communication"], universities:["University of Pretoria","University of the Witwatersrand"], tasks:"Assess hearing, fit hearing aids and advise on hearing health.", related:["Speech Therapist","ENT Specialist"], demand:"Moderate and growing."},
+  {name:"Paramedic / Emergency Medical Technician", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Life Sciences","First Aid","Health Sciences"], universities:["TVET colleges, private providers"], tasks:"Provide emergency pre-hospital care and transport patients.", related:["Emergency Nurse","Ambulance Officer"], demand:"High in emergency services."},
+  {name:"Occupational Health Nurse / Safety Officer", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Health Sciences","Safety Management"], universities:["University of Pretoria","University of Johannesburg"], tasks:"Promote workplace health, manage incidents and compliance.", related:["Safety Manager","Industrial Hygienist"], demand:"Good in mining and industry."},
+  {name:"Pharmacy Technician", personality:["Analytical Thinker"], subjects:["Pharmacy Studies","Chemistry"], universities:["Technical colleges, private training"], tasks:"Support pharmacists with dispensing and stock control.", related:["Pharmacist","Clinical Pharmacist"], demand:"Good in retail pharmacy."},
+  {name:"Lawyer / Attorney", personality:["Analytical Thinker","Strategic Leader"], subjects:["Legal Studies","English","History"], universities:["University of Cape Town","University of Pretoria","University of the Witwatersrand"], tasks:"Provide legal advice, represent clients, draft contracts and plead in court.", related:["Advocate","Legal Advisor","Compliance Officer"], demand:"Steady; high in corporate law."},
+  {name:"Advocate / Prosecutor", personality:["Analytical Thinker","Strategic Leader"], subjects:["Law","Political Studies","English"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Represent clients in higher courts and handle complex litigation.", related:["Attorney","Judge"], demand:"Competitive with public sector needs."},
+  {name:"Paralegal / Legal Secretary", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Legal Studies","Office Admin"], universities:["UNISA (short courses), private colleges"], tasks:"Support lawyers with research, documents and office administration.", related:["Legal Assistant","Conveyancer"], demand:"Good in law firms and corporates."},
+  {name:"Judge (senior)", personality:["Strategic Leader","Analytical Thinker"], subjects:["Law","Philosophy","History"], universities:["Top law schools; career progression"], tasks:"Preside over court proceedings, interpret law and deliver judgments.", related:["Senior Attorney","Legal Scholar"], demand:"Specialised senior roles."},
+  {name:"Accountant (CA / Accountant)", personality:["Analytical Thinker","Strategic Leader"], subjects:["Accounting","Mathematics","Economics"], universities:["University of Johannesburg","University of Pretoria","Rhodes University"], tasks:"Manage finances, prepare statements, audit and advise on tax.", related:["Auditor","Financial Manager","Tax Advisor"], demand:"High across sectors."},
+  {name:"Auditor (internal/external)", personality:["Analytical Thinker"], subjects:["Accounting","Auditing","Economics"], universities:["University of Cape Town","University of Johannesburg"], tasks:"Conduct financial audits, ensure compliance and report findings.", related:["Forensic Accountant","Internal Auditor"], demand:"Strong demand in firms and corporates."},
+  {name:"Financial Analyst / Investment Analyst", personality:["Analytical Thinker","Strategic Leader"], subjects:["Economics","Mathematics","Finance"], universities:["University of Cape Town","University of the Witwatersrand","Stellenbosch University"], tasks:"Analyse investment opportunities, prepare valuations and advise investors.", related:["Investment Banker","Portfolio Manager"], demand:"High in finance and investment."},
+  {name:"Banker / Relationship Manager", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Finance","Economics","Business Studies"], universities:["University of Cape Town","University of Pretoria","Stellenbosch University"], tasks:"Manage client relationships, provide financial products and lending advice.", related:["Credit Analyst","Investment Banker"], demand:"Strong in retail and corporate banking."},
+  {name:"Investment Banker / Corporate Finance", personality:["Strategic Leader","Analytical Thinker"], subjects:["Finance","Accounting","Economics"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Advise on M&A, raise capital and structure deals.", related:["Private Equity","Corporate Advisor"], demand:"Competitive; concentrated in financial hubs."},
+  {name:"Insurance Underwriter / Actuary", personality:["Analytical Thinker"], subjects:["Mathematics","Statistics","Economics"], universities:["UNISA","University of Cape Town"], tasks:"Assess risk, price policies and model financial scenarios.", related:["Actuary","Risk Analyst"], demand:"Good in insurance and pensions."},
+  {name:"Human Resources Manager", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Human Resources","Business Studies","Psychology"], universities:["University of Pretoria","Stellenbosch University","University of Johannesburg"], tasks:"Manage recruitment, employee relations and organisational development.", related:["Talent Manager","Learning & Development"], demand:"Steady across organisations."},
+  {name:"Marketing Manager / Brand Manager", personality:["Creative Innovator","Strategic Leader"], subjects:["Marketing","Business Studies","Statistics"], universities:["University of Cape Town","Stellenbosch University","University of Johannesburg"], tasks:"Plan campaigns, manage Branding, analyse market data and lead teams.", related:["Digital Marketer","Product Manager"], demand:"High in consumer sectors."},
+  {name:"Sales Manager / Business Development", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Business Studies","Economics","Communication"], universities:["University of Pretoria","Stellenbosch University"], tasks:"Grow sales, manage accounts and negotiate deals.", related:["Account Manager","Regional Sales Director"], demand:"Consistently strong."},
+  {name:"Supply Chain / Logistics Manager", personality:["Analytical Thinker","Strategic Leader"], subjects:["Logistics","Business Studies","Mathematics"], universities:["University of Johannesburg","University of Pretoria","Stellenbosch University"], tasks:"Plan supply chains, manage procurement and optimise distribution.", related:["Operations Manager","Procurement Specialist"], demand:"High in retail, manufacturing and mining."},
+  {name:"Procurement Specialist / Buyer", personality:["Analytical Thinker"], subjects:["Business Studies","Economics","Accounting"], universities:["University of Johannesburg","UNISA","TVETs"], tasks:"Source suppliers, negotiate contracts and manage purchasing.", related:["Supply Chain Analyst","Category Manager"], demand:"High in large organisations."},
+  {name:"Project Manager (IT/Business)", personality:["Strategic Leader","Analytical Thinker"], subjects:["Business Studies","Project Management","Information Systems"], universities:["University of Pretoria","University of Johannesburg","Stellenbosch University"], tasks:"Plan and deliver projects, manage scope, time and budget.", related:["Program Manager","PMO Lead"], demand:"Strong across sectors."},
+  {name:"Business Analyst", personality:["Analytical Thinker"], subjects:["Business Studies","Statistics","Information Systems"], universities:["University of Cape Town","University of Johannesburg","UNISA"], tasks:"Gather requirements, analyse processes and recommend improvements.", related:["Product Manager","Systems Analyst"], demand:"High in digital transformation projects."},
+  {name:"Management Consultant", personality:["Strategic Leader","Analytical Thinker"], subjects:["Business Studies","Economics","Statistics"], universities:["University of Cape Town","University of the Witwatersrand","Stellenbosch University"], tasks:"Advise organisations on strategy, efficiency and change.", related:["Business Analyst","Project Manager"], demand:"Good with consulting firms and multinationals."},
+  {name:"Entrepreneur / Small Business Owner", personality:["Strategic Leader","Creative Innovator"], subjects:["Business Studies","Economics","Accounting"], universities:["University of Cape Town","Stellenbosch University","University of Johannesburg"], tasks:"Start and grow businesses, manage operations and marketing, secure funding.", related:["Startup Founder","Franchise Owner"], demand:"High interest; success varies with support."},
+  {name:"Retail Manager", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Business Studies","Marketing","Mathematics"], universities:["TVETs, Retail training academies"], tasks:"Run store operations, motivate staff and manage sales targets.", related:["Store Manager","Regional Manager"], demand:"Consistently high."},
+  {name:"Real Estate Agent / Property Manager", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Business Studies","Geography","Law"], universities:["UNISA (property courses), private colleges"], tasks:"Sell or manage properties, liaise with clients and handle negotiations.", related:["Property Valuer","Estate Manager"], demand:"Variable with property market."},
+  {name:"Urban Designer / Landscape Architect", personality:["Creative Innovator","Analytical Thinker"], subjects:["Design","Architecture","Ecology"], universities:["University of Cape Town","Stellenbosch University","Nelson Mandela University"], tasks:"Design outdoor spaces, parks and integrate ecology with design.", related:["Urban Planner","Architect"], demand:"Moderate in public and private projects."},
+  {name:"Surveyor / Geomatics", personality:["Analytical Thinker"], subjects:["Mathematics","Geography","Surveying"], universities:["University of Pretoria","University of KwaZulu-Natal","Stellenbosch University"], tasks:"Measure land parcels, produce maps and support construction.", related:["GIS Specialist","Civil Engineer"], demand:"Steady with development projects."},
+  {name:"Graphic Designer", personality:["Creative Innovator"], subjects:["Art","Design","Digital Media"], universities:["University of Johannesburg","Cape Peninsula University of Technology","Vega School"], tasks:"Produce visual materials for print and web, branding and campaigns.", related:["Illustrator","UX Designer"], demand:"High in agencies and in-house teams."},
+  {name:"UI/UX Designer", personality:["Creative Innovator","Analytical Thinker"], subjects:["Design","Psychology","Information Technology"], universities:["Vega School","AFDA","Stellenbosch University"], tasks:"Design intuitive interfaces and conduct user research.", related:["Product Designer","Front-end Developer"], demand:"High in tech and fintech."},
+  {name:"Web Developer", personality:["Analytical Thinker"], subjects:["Computer Science","Information Technology","Mathematics"], universities:["University of Johannesburg","UNISA","Stellenbosch University"], tasks:"Build and maintain websites, work with designers and back-end systems.", related:["Full-Stack Developer","Front-end Developer"], demand:"High across industries."},
+  {name:"Mobile App Developer", personality:["Analytical Thinker","Creative Innovator"], subjects:["Computer Science","Mathematics","Information Technology"], universities:["University of Cape Town","University of Pretoria","Stellenbosch University"], tasks:"Design and implement mobile applications for iOS/Android.", related:["Software Developer","UX Designer"], demand:"High in startups and software houses."},
+  {name:"Game Developer", personality:["Creative Innovator","Analytical Thinker"], subjects:["Computer Science","Design","Mathematics"], universities:["AFDA","Vega School","University of Johannesburg"], tasks:"Develop game mechanics, coding and collaborate with artists.", related:["Animator","Level Designer"], demand:"Growing with game studios."},
+  {name:"IT Consultant", personality:["Analytical Thinker","Strategic Leader"], subjects:["Information Systems","Business Studies","Computer Science"], universities:["University of the Witwatersrand","University of Cape Town","UNISA"], tasks:"Advise on IT strategy, implement systems and optimise processes.", related:["Business Analyst","Cloud Architect"], demand:"Strong in transformation projects."},
+  {name:"Cloud Engineer / DevOps", personality:["Analytical Thinker"], subjects:["Computer Science","Networking","Information Systems"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Deploy and maintain cloud infrastructure, automate systems and CI/CD.", related:["Site Reliability Engineer","Systems Administrator"], demand:"Very high."},
+  {name:"AI / Machine Learning Engineer", personality:["Analytical Thinker"], subjects:["Mathematics","Statistics","Computer Science"], universities:["University of Cape Town","Stellenbosch University","University of Pretoria"], tasks:"Build machine learning models, process data and productionise ML solutions.", related:["Data Scientist","Research Engineer"], demand:"High in advanced tech."},
+  {name:"Database Administrator", personality:["Analytical Thinker"], subjects:["Information Technology","Computer Science","Mathematics"], universities:["University of Johannesburg","UNISA"], tasks:"Manage database systems, performance tuning and backups.", related:["Data Engineer","DB Developer"], demand:"Good in enterprise environments."},
+  {name:"Business Intelligence Analyst", personality:["Analytical Thinker"], subjects:["Statistics","Information Systems","Mathematics"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Transform data into actionable insights and dashboards.", related:["Data Analyst","Data Scientist"], demand:"High with data-driven decisions."},
+  {name:"Actuary", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Statistics","Economics"], universities:["University of Cape Town","UNISA"], tasks:"Model financial risk for insurance and pensions.", related:["Risk Analyst","Financial Analyst"], demand:"Strong in insurance and pensions."},
+  {name:"Statistician", personality:["Analytical Thinker"], subjects:["Mathematics","Statistics","Computer Science"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Design studies, analyse data and report findings.", related:["Data Scientist","Research Analyst"], demand:"High in government and industry."},
+  {name:"Quality Assurance / QA Engineer", personality:["Analytical Thinker"], subjects:["Information Technology","Computer Science","Mathematics"], universities:["Technical colleges, private courses"], tasks:"Test software to ensure quality and reliability.", related:["Test Automation Engineer","Software Developer"], demand:"High in software companies."},
+  {name:"UX Researcher", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Psychology","Design","Statistics"], universities:["Vega School","University of Cape Town"], tasks:"Conduct user studies, interviews and usability tests.", related:["UX Designer","Product Manager"], demand:"Growing in product teams."},
+  {name:"Product Manager", personality:["Strategic Leader","Analytical Thinker"], subjects:["Business Studies","Information Systems","Marketing"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Define product vision, prioritise features and coordinate teams.", related:["Project Manager","Product Designer"], demand:"High in tech and fintech."},
+  {name:"Supply Chain Analyst", personality:["Analytical Thinker"], subjects:["Logistics","Mathematics","Business Studies"], universities:["University of Johannesburg","University of Pretoria"], tasks:"Analyse supply chain data and recommend improvements.", related:["Logistics Manager","Procurement Specialist"], demand:"High in retail and manufacturing."},
+  {name:"Logistics / Warehouse Manager", personality:["Strategic Leader","Analytical Thinker"], subjects:["Business Studies","Logistics","Mathematics"], universities:["Cape Peninsula University of Technology","UNISA"], tasks:"Oversee warehousing, distribution and fulfilment operations.", related:["Supply Chain Manager","Operations Manager"], demand:"Very high with e-commerce growth."},
+  {name:"Mining Engineer", personality:["Analytical Thinker","Strategic Leader"], subjects:["Mathematics","Physical Science","Engineering Graphics"], universities:["University of Pretoria","University of the Witwatersrand","University of Cape Town"], tasks:"Design mine operations, ensure safety and manage extraction processes.", related:["Geotechnical Engineer","Mineral Processing Engineer"], demand:"High in mining regions."},
+  {name:"Geologist / Geoscientist", personality:["Analytical Thinker"], subjects:["Geology","Chemistry","Mathematics"], universities:["University of the Witwatersrand","University of Cape Town","Stellenbosch University"], tasks:"Study earth materials, advise on exploration and resource evaluation.", related:["Mining Engineer","Hydrogeologist"], demand:"Good in mining and exploration."},
+  {name:"Petroleum Engineer", personality:["Analytical Thinker"], subjects:["Engineering","Mathematics","Chemistry"], universities:["University of Pretoria","University of Cape Town"], tasks:"Design extraction methods and optimise hydrocarbon recovery.", related:["Reservoir Engineer","Drilling Engineer"], demand:"Sector-dependent; specialised."},
+  {name:"Environmental Consultant", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Environmental Science","Chemistry","Geography"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Advise on compliance, impact assessments and remediation.", related:["Ecologist","Sustainability Manager"], demand:"Increasing with regulation."},
+  {name:"Occupational Hygienist / Safety Specialist", personality:["Analytical Thinker","Strategic Leader"], subjects:["Health & Safety","Chemistry","Engineering"], universities:["University of Pretoria","CUT"], tasks:"Assess workplace hazards and implement controls.", related:["Safety Manager","Industrial Hygienist"], demand:"High in mining and manufacturing."},
+  {name:"Research Scientist (Various fields)", personality:["Analytical Thinker"], subjects:["Discipline-specific sciences","Statistics","Research Methods"], universities:["Major universities"], tasks:"Conduct experiments, publish research and secure grants.", related:["Academic","Lab Manager"], demand:"Steady in academia and industry."},
+  {name:"Laboratory Technician (Chemical/Bio)", personality:["Analytical Thinker"], subjects:["Chemistry","Biology","Lab techniques"], universities:["TVETs, university short courses"], tasks:"Support lab research, prepare reagents and run assays.", related:["Lab Scientist","Quality Control Analyst"], demand:"Good in labs and industry."},
+  {name:"Acting / Performing Artist", personality:["Creative Innovator","Empathetic Communicator"], subjects:["Drama","Music","Arts"], universities:["AFDA","University of Cape Town","Rhodes University"], tasks:"Perform in theatre, film and media; rehearse and audition.", related:["Director","Producer"], demand:"Niche; strong in urban centres."},
+  {name:"Musician / Music Producer", personality:["Creative Innovator"], subjects:["Music Theory","Performance","Audio Technology"], universities:["University of Cape Town (music)","Rhodes University"], tasks:"Compose, record and produce music.", related:["Sound Engineer","Composer"], demand:"Variable; good for producers and skilled performers."},
+  {name:"Chef / Head Chef", personality:["Creative Innovator","Strategic Leader"], subjects:["Culinary Arts","Nutrition","Business"], universities:["Culinary academies, CPUT short courses"], tasks:"Design menus, manage kitchen teams and ensure food quality.", related:["Pastry Chef","Restaurant Manager"], demand:"High in hospitality and events."},
+  {name:"Hospitality Manager / Hotel Manager", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Hospitality","Business Studies","Tourism"], universities:["Cape Peninsula University of Technology","University of Johannesburg"], tasks:"Manage hotel operations, guest experience and finances.", related:["Resort Manager","Front Office Manager"], demand:"Good with tourism recovery."},
+  {name:"Tourism Guide / Officer", personality:["Empathetic Communicator","Creative Innovator"], subjects:["Tourism","Geography","Cultural Studies"], universities:["UNISA (tourism), TVETs"], tasks:"Lead tours, interpret heritage and promote destinations.", related:["Tour Operator","Heritage Manager"], demand:"Seasonal but strong in tourist regions."},
+  {name:"Conservation Scientist / Ecologist", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Biology","Ecology","Environmental Science"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Monitor ecosystems, advise on conservation and manage reserves.", related:["Forestry Officer","Park Ranger"], demand:"Steady in conservation NGOs and government."},
+  {name:"Forest / Park Ranger", personality:["Empathetic Communicator"], subjects:["Environmental Science","Geography","Biology"], universities:["Nelson Mandela University, TVETs"], tasks:"Protect natural areas, guide visitors and enforce regulations.", related:["Conservation Officer","Wildlife Biologist"], demand:"Stable in park services."},
+  {name:"Wildlife Veterinarian / Conservation Vet", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Veterinary Science","Biology","Animal Science"], universities:["University of Pretoria (Onderstepoort)"], tasks:"Care for wildlife, perform surgeries and advise on conservation health.", related:["Veterinarian","Wildlife Researcher"], demand:"Specialised; important for conservation."},
+  {name:"Wildlife Biologist / Researcher", personality:["Analytical Thinker"], subjects:["Biology","Ecology","Statistics"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Research biodiversity, monitor species and recommend conservation strategies.", related:["Conservation Scientist","Park Manager"], demand:"Niche but vital."},
+  {name:"Police Officer / Detective", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Criminology","Law","Public Safety"], universities:["SAPs Academy, UNISA short courses"], tasks:"Enforce law, investigate crimes and protect communities.", related:["Forensic Investigator","Correctional Services"], demand:"Ongoing need for officers."},
+  {name:"Forensic Scientist", personality:["Analytical Thinker"], subjects:["Chemistry","Biology","Forensics"], universities:["University of the Witwatersrand","University of Pretoria"], tasks:"Analyse evidence and support criminal investigations.", related:["Forensic Analyst","Crime Scene Investigator"], demand:"Important in justice system."},
+  {name:"Firefighter / Fire Officer", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Physical Fitness","Safety Studies"], universities:["Municipal training academies"], tasks:"Respond to fires, rescue operations and community safety.", related:["Rescue Specialist","Fire Inspector"], demand:"Essential public service."},
+  {name:"Customs / Border Control Officer", personality:["Strategic Leader","Analytical Thinker"], subjects:["Law","Security Studies"], universities:["SAPS / government training"], tasks:"Manage border security and customs operations.", related:["Immigration Officer"], demand:"Steady with trade flows."},
+  {name:"Entrepreneur (SME / Startup)", personality:["Strategic Leader","Creative Innovator"], subjects:["Business Studies","Economics","Accounting"], universities:["UCT GSB, UNISA short courses"], tasks:"Start and scale businesses, secure funding and manage operations.", related:["Business Consultant","Investor"], demand:"High interest; variable outcomes."},
+  {name:"Startup Founder (Tech)", personality:["Strategic Leader","Analytical Thinker"], subjects:["Computer Science","Business Studies","Mathematics"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Build product-market fit, fundraise and grow teams.", related:["Product Manager","Entrepreneur"], demand:"High in tech hubs."},
+  {name:"Investor / Venture Capital (VC) Analyst", personality:["Analytical Thinker","Strategic Leader"], subjects:["Finance","Economics","Accounting"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Analyse startups, conduct due diligence and manage portfolios.", related:["Private Equity Analyst","Financial Analyst"], demand:"Growing with startup ecosystem."},
+  {name:"Digital Marketer / SEM Specialist", personality:["Creative Innovator","Analytical Thinker"], subjects:["Marketing","Statistics","Media Studies"], universities:["University of Cape Town","Vega School"], tasks:"Run online campaigns, measure ROI and optimise channels.", related:["SEO Specialist","Social Media Manager"], demand:"High in digital-first companies."},
+  {name:"Social Media Manager / Content Creator", personality:["Creative Innovator","Empathetic Communicator"], subjects:["Media Studies","Marketing","Communication"], universities:["Vega School","Private courses"], tasks:"Create content, engage communities and grow brand presence.", related:["Community Manager","Copywriter"], demand:"High in marketing teams."},
+  {name:"Journalist / Reporter", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Media Studies","English","Society"], universities:["Rhodes University","University of Cape Town"], tasks:"Investigate and report news for print, broadcast or online.", related:["Editor","Producer"], demand:"Local demand; digital shift ongoing."},
+  {name:"Editor / Publisher", personality:["Strategic Leader","Empathetic Communicator"], subjects:["English","Media Studies","Communication"], universities:["Stellenbosch University","Rhodes University"], tasks:"Edit content, commission stories and manage publications.", related:["Journalist","Content Director"], demand:"Changing but steady in niche media."},
+  {name:"Public Relations / Corporate Communications", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Communications","Media Studies","Business Studies"], universities:["University of Cape Town","Rhodes University"], tasks:"Manage reputation, media relations and internal communications.", related:["Marketing Manager","Spokesperson"], demand:"Consistent in corporates and NGOs."},
+  {name:"Event Manager / Producer", personality:["Creative Innovator","Strategic Leader"], subjects:["Business Studies","Marketing","Hospitality"], universities:["Vega School","University of Johannesburg"], tasks:"Plan and deliver events, coordinate vendors and logistics.", related:["Festival Producer","Conference Organizer"], demand:"High in corporate and live events."},
+  {name:"Film Producer", personality:["Strategic Leader","Creative Innovator"], subjects:["Media Studies","Business","Law"], universities:["AFDA","University of Cape Town"], tasks:"Oversee film production, secure financing and manage teams.", related:["Director","Line Producer"], demand:"Growing with local content production."},
+  {name:"Film Editor / Post Production", personality:["Creative Innovator","Analytical Thinker"], subjects:["Media Studies","Digital Media"], universities:["AFDA","Vega School"], tasks:"Edit footage, colour grade and finish films.", related:["Director","Sound Designer"], demand:"Growing with content production."},
+  {name:"Broadcaster / Presenter", personality:["Empathetic Communicator","Creative Innovator"], subjects:["Media Studies","Communication","English"], universities:["Rhodes University","AFDA"], tasks:"Present shows, interview guests and produce content.", related:["Journalist","Producer"], demand:"Moderate; opportunities in radio/TV/digital."},
+  {name:"Translator / Interpreter", personality:["Empathetic Communicator"], subjects:["Languages","Communication"], universities:["UNISA","University of Cape Town"], tasks:"Translate written material and interpret spoken language.", related:["Localization Specialist","Editor"], demand:"Good in multilingual SA."},
+  {name:"Translator (Legal/Technical)", personality:["Analytical Thinker"], subjects:["Languages","Law/Technical field"], universities:["UNISA, private courses"], tasks:"Translate specialised documents with accuracy.", related:["Interpreter","Editor"], demand:"Steady for specialised work."},
+  {name:"Graphic Animator / Motion Designer", personality:["Creative Innovator"], subjects:["Animation","Design","Computer Graphics"], universities:["AFDA","Vega School","University of Johannesburg"], tasks:"Create motion graphics for video and web.", related:["Animator","VFX Artist"], demand:"Growing with digital media."},
+  {name:"Sound Engineer / Audio Technician", personality:["Creative Innovator","Analytical Thinker"], subjects:["Audio Engineering","Music Technology"], universities:["AFDA","University of Johannesburg"], tasks:"Record, mix and master audio for music, film and events.", related:["Music Producer","Live Sound Engineer"], demand:"Good in music and broadcast."},
+  {name:"Sports Coach / Fitness Trainer", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Human Movement Studies","Biology","Sports Science"], universities:["University of Pretoria","University of Johannesburg"], tasks:"Train athletes, plan programs and improve performance.", related:["Physiotherapist","Sports Scientist"], demand:"Strong in schools and clubs."},
+  {name:"Sports Scientist / Performance Analyst", personality:["Analytical Thinker"], subjects:["Kinesiology","Statistics","Biology"], universities:["University of Pretoria","Stellenbosch University"], tasks:"Analyse performance metrics and advise training.", related:["Sports Coach","Physiotherapist"], demand:"Growing in professional sports."},
+  {name:"Fashion Designer / Textile Specialist", personality:["Creative Innovator"], subjects:["Design","Textiles","Art"], universities:["Design School of South Africa","Vega School"], tasks:"Design garments, work with materials and present collections.", related:["Stylist","Merchandiser"], demand:"Moderate with designer niches."},
+  {name:"Retail Buyer / Merchandiser", personality:["Analytical Thinker","Strategic Leader"], subjects:["Business Studies","Economics","Marketing"], universities:["UNISA","University of Johannesburg"], tasks:"Select product assortments, negotiate with suppliers and manage margins.", related:["Category Manager","Retail Manager"], demand:"High in retail chains."},
+  {name:"Chemist / Analytical Chemist", personality:["Analytical Thinker"], subjects:["Chemistry","Mathematics","Physics"], universities:["University of the Witwatersrand","University of Pretoria","Stellenbosch University"], tasks:"Analyse compounds, develop formulations and ensure quality control.", related:["Materials Scientist","Quality Analyst"], demand:"Steady in industry and labs."},
+  {name:"Materials Scientist / Metallurgist", personality:["Analytical Thinker"], subjects:["Materials Science","Chemistry","Physics"], universities:["University of the Witwatersrand","University of Pretoria"], tasks:"Develop new materials, test properties and improve processes.", related:["Chemical Engineer","Process Engineer"], demand:"Strong in mining and manufacturing."},
+  {name:"Quality Assurance / Quality Control Manager", personality:["Analytical Thinker","Strategic Leader"], subjects:["Engineering","Chemistry","Business Studies"], universities:["Various universities and TVETs"], tasks:"Ensure product quality, manage audits and compliance.", related:["QA Engineer","Quality Analyst"], demand:"High in manufacturing and food."},
+  {name:"Mechanical Fitter / Artisan", personality:["Analytical Thinker"], subjects:["Technical Drawing","Mechanical Technology","Mathematics"], universities:["TVET colleges, apprenticeship programmes"], tasks:"Fit and repair mechanical components and maintain machinery.", related:["Mechanical Technician","Maintenance Engineer"], demand:"High in industry and mining."},
+  {name:"Electrician (industrial/domestic)", personality:["Analytical Thinker"], subjects:["Electrical Technology","Mathematics"], universities:["TVET colleges, apprenticeships"], tasks:"Install and maintain electrical systems in buildings and plants.", related:["Electrical Technician","Maintenance Electrician"], demand:"Very high across sectors."},
+  {name:"Plumber / Pipefitter", personality:["Analytical Thinker"], subjects:["Plumbing trade skills","Mathematics"], universities:["TVET colleges, apprenticeship programs"], tasks:"Install and repair water and drainage systems.", related:["Gas Fitter","Maintenance Technician"], demand:"High for tradespeople."},
+  {name:"Bricklayer / Construction Artisan", personality:["Analytical Thinker"], subjects:["Construction practice","Technical drawing"], universities:["TVET colleges, apprenticeships"], tasks:"Build walls and structures, read plans and ensure quality.", related:["Mason","Construction Supervisor"], demand:"Very high with construction projects."},
+  {name:"Carpenter / Joiner", personality:["Analytical Thinker","Creative Innovator"], subjects:["Woodwork","Technical Drawing"], universities:["TVET colleges"], tasks:"Build and install wooden structures and furniture.", related:["Cabinet Maker","Furniture Designer"], demand:"Strong in building and renovation."},
+  {name:"Automotive Mechanic / Technician", personality:["Analytical Thinker"], subjects:["Automotive Technology","Physics"], universities:["Technical colleges, private academies"], tasks:"Diagnose and repair vehicle systems and perform servicing.", related:["Diesel Mechanic","Auto Electrician"], demand:"High across urban and rural areas."},
+  {name:"Aircraft Maintenance Engineer", personality:["Analytical Thinker"], subjects:["Aviation Engineering","Physics","Mathematics"], universities:["Aviation maintenance schools, university links"], tasks:"Maintain and certify aircraft systems for safety.", related:["Avionics Technician","Aircraft Engineer"], demand:"Essential for aviation sector."},
+  {name:"Logistics Coordinator / Freight Forwarder", personality:["Strategic Leader","Analytical Thinker"], subjects:["Logistics","Business Studies","Geography"], universities:["UNISA","TVETs"], tasks:"Coordinate shipments, customs, and transport planning.", related:["Supply Chain Manager","Operations Manager"], demand:"High with trade and e-commerce."},
+  {name:"Customs Broker / Trade Compliance", personality:["Analytical Thinker"], subjects:["Law","Economics","Business Studies"], universities:["UNISA, private colleges"], tasks:"Manage customs documentation and ensure trade compliance.", related:["Freight Forwarder","Logistics Manager"], demand:"Important for import/export."},
+  {name:"Human Rights Advocate / NGO Manager", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Law","Political Science","Social Work"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Run NGO programmes, advocate policy and support communities.", related:["Policy Analyst","Social Worker"], demand:"Good in NGO sector."},
+  {name:"Policy Analyst / Government Advisor", personality:["Analytical Thinker","Strategic Leader"], subjects:["Political Science","Economics","Statistics"], universities:["University of Cape Town","Stellenbosch University"], tasks:"Analyse policy options and advise government or agencies.", related:["Researcher","Consultant"], demand:"Good in public sector."},
+  {name:"Translator / Localisation Specialist", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["Languages","Computational Linguistics"], universities:["UNISA","University of Cape Town"], tasks:"Translate and localise content for multilingual audiences.", related:["Interpreter","Editor"], demand:"High for multilingual SA."},
+  {name:"Interpreter (legal/medical)", personality:["Empathetic Communicator"], subjects:["Languages","Specialised terminology"], universities:["UNISA, specialized training"], tasks:"Interpret spoken language in courts or medical settings.", related:["Translator","Court Interpreter"], demand:"High for essential services."},
+  {name:"Archivist / Librarian", personality:["Analytical Thinker","Empathetic Communicator"], subjects:["Information Science","History","Library Studies"], universities:["University of Cape Town","University of Pretoria"], tasks:"Manage collections, organise information and support research.", related:["Records Manager","Museum Curator"], demand:"Stable in institutions."},
+  {name:"Museum Curator / Cultural Heritage Manager", personality:["Creative Innovator","Empathetic Communicator"], subjects:["History","Cultural Studies","Museology"], universities:["University of Cape Town","University of the Witwatersrand"], tasks:"Curate collections, design exhibits and engage visitors.", related:["Archivist","Heritage Manager"], demand:"Niche; important for culture."},
+  {name:"UX Content Strategist / Content Designer", personality:["Creative Innovator","Analytical Thinker"], subjects:["Communication","Design","Psychology"], universities:["Vega School","University of Cape Town"], tasks:"Craft content for user experiences and product interfaces.", related:["UX Writer","Content Strategist"], demand:"Growing in product teams."},
+  {name:"Content Writer / Technical Writer", personality:["Empathetic Communicator","Analytical Thinker"], subjects:["English","Communication","Subject expertise"], universities:["University of Johannesburg","UNISA"], tasks:"Write guides, articles and technical documentation.", related:["Copywriter","Editor"], demand:"High in digital businesses."},
+  {name:"SEO Specialist / Growth Marketer", personality:["Analytical Thinker","Creative Innovator"], subjects:["Marketing","Statistics","IT"], universities:["Online certifications, Vega School"], tasks:"Improve search visibility, run experiments and measure growth.", related:["Digital Marketer","Analyst"], demand:"Strong in digital marketing."},
+  {name:"Customer Success Manager", personality:["Empathetic Communicator","Strategic Leader"], subjects:["Business Studies","Communication"], universities:["University of Cape Town, UNISA (short)"], tasks:"Manage customer relationships and ensure product adoption.", related:["Account Manager","Support Lead"], demand:"High in SaaS companies."},
+  {name:"Call Centre Team Lead / Manager", personality:["Strategic Leader","Empathetic Communicator"], subjects:["Business Studies","Communication"], universities:["TVETs, private training"], tasks:"Manage teams, ensure KPIs and handle escalations.", related:["Operations Manager","Customer Experience Manager"], demand:"Consistent in BPOs."},
+  {name:"UX Research Lead / Design Lead", personality:["Strategic Leader","Analytical Thinker"], subjects:["Psychology","Design","Research Methods"], universities:["Vega School","University of Cape Town"], tasks:"Lead research programmes and mentor design teams.", related:["Head of Product","UX Manager"], demand:"Growing in mature product orgs."}
+]; // end careers array
+
+// UI elements
+const listEl = document.getElementById('list');
+const detailEl = document.getElementById('detail');
+const dName = document.getElementById('d-name');
+const dPersonality = document.getElementById('d-personality');
+const dSubjects = document.getElementById('d-subjects');
+const dUnis = document.getElementById('d-unis');
+const dTasks = document.getElementById('d-tasks');
+const dRelated = document.getElementById('d-related');
+const dDemand = document.getElementById('d-demand');
+const emptyEl = document.getElementById('empty');
+const searchInput = document.getElementById('search');
+const resetBtn = document.getElementById('reset');
+const testBtn = document.getElementById('testBtn');
+
+// map personality labels to tab keys
+function tabKey(label){
+  if(label === "Creative Innovator") return 'creative';
+  if(label === "Analytical Thinker") return 'analytical';
+  if(label === "Empathetic Communicator") return 'empathetic';
+  if(label === "Strategic Leader") return 'strategic';
+  return 'analytical';
+}
+
+// Current active tab
+let activeTab = 'creative';
+
+// Render list for active tab and filter
+function renderList(){
+  const q = searchInput.value.trim().toLowerCase();
+  listEl.innerHTML = '';
+  const filtered = careers.filter(c=>{
+    // appears in active tab?
+    if(!c.personality.some(p=>tabKey(p) === activeTab)) return false;
+    if(!q) return true;
+    // search name, subjects, unis, related
+    const hay = (c.name + ' ' + c.subjects.join(' ') + ' ' + c.universities.join(' ') + ' ' + c.related.join(' ')).toLowerCase();
+    return hay.includes(q);
+  });
+  if(filtered.length === 0){
+    emptyEl.style.display = 'block';
+  } else {
+    emptyEl.style.display = 'none';
+  }
+  filtered.forEach(c=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3>${c.name}</h3><p>${c.universities.slice(0,2).join(', ')} • ${c.demand}</p>`;
+    card.onclick = ()=> showDetail(c);
+    listEl.appendChild(card);
+  });
+}
+
+// Show career detail
+function showDetail(c){
+  dName.textContent = c.name;
+  dPersonality.textContent = c.personality.join(', ');
+  dSubjects.textContent = c.subjects.join(', ');
+  dUnis.textContent = c.universities.join('; ');
+  dTasks.textContent = c.tasks;
+  dRelated.textContent = c.related.join(', ');
+  dDemand.textContent = c.demand;
+  detailEl.style.display = 'block';
+  window.scrollTo({top: detailEl.offsetTop - 10, behavior:'smooth'});
+}
+
+// Close detail
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailEl.style.display = 'none';
+});
+
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    // set activeTab
+    const map = {creative:'creative', analytical:'analytical', empathetic:'empathetic', strategic:'strategic'};
+    activeTab = map[btn.dataset.tab] || (btn.textContent.includes('Creative')? 'creative' : 'creative');
+    // update dataset attribute for simpler mapping: set data-tab values earlier if needed
+    // render
+    renderList();
+    detailEl.style.display = 'none';
+  });
+});
+
+// initial hook: set data-tab values for the buttons (in case dataset mapping needed)
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  const label = btn.textContent.trim();
+  if(label.includes('Creative')) btn.dataset.tab = 'creative';
+  if(label.includes('Analytical')) btn.dataset.tab = 'analytical';
+  if(label.includes('Empathetic')) btn.dataset.tab = 'empathetic';
+  if(label.includes('Strategic')) btn.dataset.tab = 'strategic';
+});
+
+// search & reset
+searchInput.addEventListener('input', renderList);
+resetBtn.addEventListener('click', ()=>{
+  searchInput.value = '';
+  renderList();
+});
+
+// Test button (replace URL as needed)
+testBtn.addEventListener('click', ()=>{
+  // replace the href with your real quiz link
+  const quiz = 'YOUR_CAREER_TEST_LINK_HERE';
+  if(quiz && quiz !== 'YOUR_CAREER_TEST_LINK_HERE'){
+    window.location.href = quiz;
+  } else {
+    alert('Test link not set — replace YOUR_CAREER_TEST_LINK_HERE in the code with your quiz URL.');
+  }
+});
+
+// initial render for creative tab
+renderList();
+</script>
+</body>
+</html>
