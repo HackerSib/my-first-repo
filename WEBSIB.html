@@ -243,7 +243,6 @@ const dDemand = document.getElementById('d-demand');
 const emptyEl = document.getElementById('empty');
 const searchInput = document.getElementById('search');
 const resetBtn = document.getElementById('reset');
-const testBtn = document.getElementById('testBtn');
 
 // map personality labels to tab keys
 function tabKey(label){
@@ -262,18 +261,13 @@ function renderList(){
   const q = searchInput.value.trim().toLowerCase();
   listEl.innerHTML = '';
   const filtered = careers.filter(c=>{
-    // appears in active tab?
     if(!c.personality.some(p=>tabKey(p) === activeTab)) return false;
     if(!q) return true;
-    // search name, subjects, unis, related
     const hay = (c.name + ' ' + c.subjects.join(' ') + ' ' + c.universities.join(' ') + ' ' + c.related.join(' ')).toLowerCase();
     return hay.includes(q);
   });
-  if(filtered.length === 0){
-    emptyEl.style.display = 'block';
-  } else {
-    emptyEl.style.display = 'none';
-  }
+  emptyEl.style.display = filtered.length === 0 ? 'block' : 'none';
+
   filtered.forEach(c=>{
     const card = document.createElement('div');
     card.className = 'card';
@@ -306,52 +300,35 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    // set activeTab
-    const map = {creative:'creative', analytical:'analytical', empathetic:'empathetic', strategic:'strategic'};
-    activeTab = map[btn.dataset.tab] || (btn.textContent.includes('Creative')? 'creative' : 'creative');
-    // update dataset attribute for simpler mapping: set data-tab values earlier if needed
-    // render
+    activeTab = btn.dataset.tab;
     renderList();
     detailEl.style.display = 'none';
   });
 });
 
-// initial hook: set data-tab values for the buttons (in case dataset mapping needed)
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  const label = btn.textContent.trim();
-  if(label.includes('Creative')) btn.dataset.tab = 'creative';
-  if(label.includes('Analytical')) btn.dataset.tab = 'analytical';
-  if(label.includes('Empathetic')) btn.dataset.tab = 'empathetic';
-  if(label.includes('Strategic')) btn.dataset.tab = 'strategic';
-});
-
-// search & reset
+// Search & reset
 searchInput.addEventListener('input', renderList);
 resetBtn.addEventListener('click', ()=>{
   searchInput.value = '';
   renderList();
 });
 
-<button id="testBtn">Test Quiz Link</button>
+// initial render
+renderList();
+</script>
+
+<!-- ✅ PLACE THE TEST BUTTON OUTSIDE THE SCRIPT -->
+<button id="testBtn" style="margin:20px; padding:12px; background:#004aad; color:white; border:none; border-radius:8px; cursor:pointer;">
+  Take The Career Quiz
+</button>
 
 <script>
-// Test button functionality
-const testBtn = document.getElementById('testBtn');
-testBtn.addEventListener('click', () => {
-  // replace the href with your real quiz link
+// ✅ Test button links to your quiz
+document.getElementById('testBtn').addEventListener('click', () => {
   const quiz = 'file:///C:/Users/Student/Downloads/career_quiz_full.html';
-  if(quiz && quiz !== 'YOUR_CAREER_TEST_LINK_HERE'){
-    window.location.href = quiz;
-  } else {
-    alert('Test link not set — replace YOUR_CAREER_TEST_LINK_HERE in the code with your quiz URL.');
-  }
+  window.location.href = quiz;
 });
 </script>
 
-// initial render for creative tab
-renderList();
-</script>
 </body>
 </html>
-
-
