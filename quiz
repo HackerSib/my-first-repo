@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Career Finder — 35 Question Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#004aad;--bg:#f6f8fb;--card:#ffffff;--muted:#6b7280}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial,sans-serif;margin:0;background:linear-gradient(180deg,#f8fbff,#f6f8fb);color:#0b1220}
+.container{max-width:920px;margin:28px auto;padding:20px}
+.header{display:flex;align-items:center;gap:14px}
+.logo{width:44px;height:44px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+.title{font-size:20px;font-weight:700}
+.subtitle{color:var(--muted);margin-top:6px}
+.card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(10,20,40,0.06);margin-top:16px}
+.progress{height:12px;background:#e6eefb;border-radius:999px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),#9333ea);transition:width .35s}
+.question{font-size:18px;font-weight:600;margin-bottom:12px}
+.options{display:grid;grid-template-columns:1fr;gap:10px}
+.opt{padding:12px;border-radius:10px;background:#f7fbff;border:1px solid rgba(0,74,173,0.06);cursor:pointer;transition:transform .12s, background .12s}
+.opt:hover{transform:translateY(-3px);background:#f0f6ff}
+.opt input{margin-right:10px}
+.controls{display:flex;gap:10px;margin-top:14px}
+.btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+.btn-primary{background:var(--brand);color:white}
+.btn-ghost{background:transparent;border:1px solid #e6eefb;color:var(--muted)}
+.side{margin-top:12px;color:var(--muted);font-size:14px}
+.result{padding:18px;border-radius:10px;background:linear-gradient(180deg,rgba(0,74,173,0.06),rgba(147,51,234,0.03));margin-top:12px}
+.footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+.test-btn{display:inline-block;margin-top:12px;padding:10px 12px;background:var(--brand);color:#fff;border-radius:8px;text-decoration:none}
+@media(max-width:720px){.question{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">CF</div>
+    <div>
+      <div class="title">Career Finder — Self Discovery</div>
+      <div class="subtitle">35 simple scenario-style questions. Pick the option that feels most like you.</div>
+    </div>
+  </div>
+
+  <div class="card" id="quizCard" aria-live="polite">
+    <div class="progress" aria-hidden="true"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div id="qZone"></div>
+    <div class="controls">
+      <button id="prevBtn" class="btn btn-ghost" aria-label="Previous">Prev</button>
+      <button id="nextBtn" class="btn btn-primary" aria-label="Next">Next</button>
+      <button id="finishBtn" class="btn btn-primary" style="display:none">Finish</button>
+    </div>
+    <div class="side">Tip: There are no wrong answers — choose what feels most like you. Results suggest career directions, not rules.</div>
+  </div>
+
+  <div id="resultCard" class="card" style="display:none">
+    <div id="resultHeader" class="result"></div>
+    <div style="margin-top:10px">
+      <div id="breakdown"></div>
+      <div style="margin-top:12px">
+        <strong>Suggested career directions:</strong>
+        <div id="careerTags" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+      </div>
+      <div style="margin-top:14px;color:var(--muted)">Keep exploring — return to the site for more career options that fit your personality type.</div>
+      <a id="testLink" class="test-btn" href="#">BACK TO THE SITE (test)</a>
+    </div>
+  </div>
+
+  <div class="footer">''Be honest with yourself, so that we can give you an honest answer'' ~Frogman</div>
+</div>
+
+<script>
+/*
+  35 scenario-style questions.
+  Each option maps to one career type:
+  A => analytical, B => empathetic, C => creative, D => strategic
+*/
+
+const QUESTIONS = [
+{"q":"You notice a classmate is confused during a group task. What do you do?","options":["Quietly re-check the facts to help them understand (analytical)","Sit with them and ask how they’re feeling (empathetic)","Sketch a diagram or example to explain it visually (creative)","Organize the tasks so they know exactly what to do (strategic)"]},
+{"q":"You have a free afternoon. Which would you pick?","options":["Tackle a puzzle or learn a new skill online (analytical)","Volunteer or catch up with a friend (empathetic)","Work on an idea, drawing, or short creative project (creative)","Make a plan for the week and set small goals (strategic)"]},
+{"q":"At a party, how do you usually behave?","options":["Notice patterns in conversations and facts (analytical)","Talk to people and check how they’re doing (empathetic)","Start a fun creative activity or take photos (creative)","Help coordinate where people should sit or what to do next (strategic)"]},
+{"q":"A teacher gives a challenging problem. You respond by:","options":["Breaking it into small steps and solving each part (analytical)","Discussing different approaches with classmates (empathetic)","Trying a new or creative method to solve it (creative)","Making a timeline and assigning parts to finish it (strategic)"]},
+{"q":"You’re building something for the first time. What’s your approach?","options":["Research instructions and test carefully (analytical)","Ask others for tips and share progress (empathetic)","Prototype quickly and experiment with look/feel (creative)","Design the blueprint and assign roles if needed (strategic)"]},
+{"q":"When someone shares a problem with you, you usually:","options":["Ask clarifying questions to understand facts (analytical)","Listen and validate their feelings first (empathetic)","Offer a new perspective or idea to try (creative)","Suggest a step-by-step plan to fix it (strategic)"]},
+{"q":"What type of articles do you enjoy reading most?","options":["How-tos, research, or explainers (analytical)","Human stories and interviews (empathetic)","Design, art, or creative showcases (creative)","Leadership, strategy, or business stories (strategic)"]},
+{"q":"You’re on a team and there’s a deadline. Your role becomes:","options":["Make sure the data and facts are correct (analytical)","Keep everyone motivated and supported (empathetic)","Make the final presentation look great (creative)","Keep the team on schedule and handle logistics (strategic)"]},
+{"q":"You have to present something. What makes you most comfortable?","options":["Having clear facts and numbers to back it up (analytical)","Knowing the audience’s feelings and needs (empathetic)","Creating a memorable, visual story (creative)","Outlining the goals and key takeaways (strategic)"]},
+{"q":"Which describes your ideal workday?","options":["Solving focused problems or analyzing data (analytical)","Helping others and connecting with people (empathetic)","Making or designing something new (creative)","Running projects and guiding people toward goals (strategic)"]},
+{"q":"When you fail at a task, you usually:","options":["Debug and learn the exact cause (analytical)","Talk it through and process feelings (empathetic)","Try a different creative approach next time (creative)","Re-evaluate strategy and make a stronger plan (strategic)"]},
+{"q":"You find a new app — how do you explore it?","options":["Read the settings and test features (analytical)","See how it connects you to people (empathetic)","Play with creative features and customization (creative)","Map out how it could be used to reach goals (strategic)"]},
+{"q":"Your friend asks you to organize an event. What’s your first move?","options":["Create a checklist of what’s needed (analytical)","Ask who needs support and how to include them (empathetic)","Plan an eye-catching theme and visuals (creative)","Set a timeline, tasks, and leaders (strategic)"]},
+{"q":"Which compliment would make you proud?","options":["You explain things so clearly (analytical)","You make people feel safe and understood (empathetic)","You have such a creative eye (creative)","You know how to get things done (strategic)"]},
+{"q":"When you think about the future, you’re excited about:","options":["Learning advanced skills or solving big problems (analytical)","Helping and supporting communities (empathetic)","Creating work that inspires others (creative)","Building something that grows and scales (strategic)"]},
+{"q":"How do you prefer to give feedback?","options":["With facts and specific examples (analytical)","Gently and focusing on feelings (empathetic)","With a suggestion and examples to spark creativity (creative)","Directly, with next steps to improve (strategic)"]},
+{"q":"Your best study method is:","options":["Focused practice and solving problems (analytical)","Talking through with classmates or mentors (empathetic)","Making visual notes and sketches (creative)","Planning a study schedule with milestones (strategic)"]},
+{"q":"What drains your energy fastest?","options":["Unclear facts or misinformation (analytical)","People being unkind or isolating others (empathetic)","Strict rules that stop creativity (creative)","Lack of direction or leadership (strategic)"]},
+{"q":"If you had to pick a side project, you’d choose:","options":["A data tool or small research project (analytical)","A community help project or peer-support group (empathetic)","A short film, design series, or portfolio piece (creative)","A startup idea or student club to lead (strategic)"]},
+{"q":"Which phrase fits you most often?","options":["I want to understand how things work (analytical)","I want people to feel seen and heard (empathetic)","I want to make something original (creative)","I want to lead and make impact (strategic)"]},
+{"q":"At a group meeting, you’re most likely to:","options":["Ask clarifying questions and check facts (analytical)","Check that everyone is doing okay (empathetic)","Suggest a creative way to present ideas (creative)","Set deadlines and decide who does what (strategic)"]},
+{"q":"You see a problem at school or work. Your first thought is:","options":["What’s causing it and how to measure it? (analytical)","Who is affected and how are they feeling? (empathetic)","Could we try a new approach? (creative)","What steps will fix it and who should lead? (strategic)"]},
+{"q":"When people praise your work, you want to hear:","options":["That it’s accurate and well-researched (analytical)","That it helped someone feel better (empathetic)","That it looks or sounds original (creative)","That it delivered results and moved things forward (strategic)"]},
+{"q":"Which tool do you naturally reach for?","options":["Calculator, spreadsheet, or reference book (analytical)","A chat or note app to check in with others (empathetic)","Sketchpad, camera, or editing app (creative)","Planner, Trello, or calendar app (strategic)"]},
+{"q":"When starting a big task, you feel best if you:","options":["Understand the problem deeply first (analytical)","Talk to those involved to get buy-in (empathetic)","Sketch ideas to see how it might look (creative)","Make a roadmap with milestones (strategic)"]},
+{"q":"Which classroom or workspace would you pick?","options":["A quiet lab or study corner (analytical)","A cozy community room with people (empathetic)","A bright studio with materials (creative)","A modern workspace with meeting rooms (strategic)"]},
+{"q":"What kind of feedback helps you improve most?","options":["Detailed corrections and data (analytical)","Supportive advice and encouragement (empathetic)","Open, inspiring ideas to try (creative)","Clear, goal-focused critique and next steps (strategic)"]},
+{"q":"Which of these sounds like a good weekend plan?","options":["Work on a research or learning project (analytical)","Volunteer or spend time with friends (empathetic)","Visit galleries, make art, or create media (creative)","Plan and start a new side project (strategic)"]},
+{"q":"How do you prefer to work on a team?","options":["Handle the technical or factual parts (analytical)","Listen, mediate, and support team members (empathetic)","Design, create, or offer visual ideas (creative)","Coordinate, assign tasks and lead execution (strategic)"]},
+{"q":"If someone asks for life advice, you usually:","options":["Give logical steps and solutions (analytical)","Ask how they feel and what they need (empathetic)","Suggest a creative experiment or idea (creative)","Offer a clear plan and timeline (strategic)"]},
+{"q":"What keeps you motivated during long projects?","options":["Small wins of learning something new (analytical)","Seeing people benefit from the work (empathetic)","Fresh ideas and creative breakthroughs (creative)","Beating milestones and hitting targets (strategic)"]},
+{"q":"Which strength do people notice first about you?","options":["Your attention to detail (analytical)","Your ability to care and connect (empathetic)","Your flair for ideas and visuals (creative)","Your talent for organizing and leading (strategic)"]},
+{"q":"What would you tell someone about your ideal job?","options":["It should let me problem-solve and think clearly (analytical)","It should let me help and connect with people (empathetic)","It should let me make things and be original (creative)","It should let me lead and build big things (strategic)"]},
+{"q":"Final check: which statement feels most like you right now?","options":["I like digging into details and facts (analytical)","I want to be there for people and listen (empathetic)","I want to make and share original work (creative)","I want to plan, lead, and make things happen (strategic)"]}
+];
+
+let index = 0;
+const total = QUESTIONS.length;
+const answers = {}; // index -> type string ('analytical'|'empathetic'|'creative'|'strategic')
+const scores = {analytical:0,empathetic:0,creative:0,strategic:0};
+
+const qZone = document.getElementById('qZone');
+const progressFill = document.getElementById('progressFill');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const finishBtn = document.getElementById('finishBtn');
+const resultCard = document.getElementById('resultCard');
+const resultHeader = document.getElementById('resultHeader');
+const breakdown = document.getElementById('breakdown');
+const careerTags = document.getElementById('careerTags');
+const testLink = document.getElementById('testLink');
+
+function renderQuestion(){
+  const item = QUESTIONS[index];
+  qZone.innerHTML = '';
+  const qEl = document.createElement('div');
+  qEl.className = 'question';
+  qEl.textContent = (index+1) + '. ' + item.q;
+  qZone.appendChild(qEl);
+
+  const opts = document.createElement('div');
+  opts.className = 'options';
+  item.options.forEach((opt, i)=>{
+    const div = document.createElement('label');
+    div.className = 'opt';
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'q';
+    // map option text to type by suffix in parentheses
+    let type = 'analytical';
+    if(opt.toLowerCase().includes('(empathetic)')) type='empathetic';
+    else if(opt.toLowerCase().includes('(creative)')) type='creative';
+    else if(opt.toLowerCase().includes('(strategic)')) type='strategic';
+    div.appendChild(radio);
+    const span = document.createElement('span');
+    // show the option text without the trailing type tag
+    const clean = opt.replace(/\s*\((analytical|empathetic|creative|strategic)\)$/i,'');
+    span.textContent = clean;
+    div.appendChild(span);
+    div.addEventListener('click', ()=> {
+      // select radio and record
+      radio.checked = true;
+      answers[index] = type;
+      // update UI selection visuals
+      opts.querySelectorAll('.opt').forEach(o=>o.style.borderColor='rgba(0,74,173,0.06)');
+      div.style.borderColor = '#004aad';
+    });
+    opts.appendChild(div);
+  });
+  qZone.appendChild(opts);
+
+  // update controls
+  prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
+  nextBtn.style.display = index === total-1 ? 'none' : 'inline-block';
+  finishBtn.style.display = index === total-1 ? 'inline-block' : 'none';
+  progressFill.style.width = Math.round((index/total)*100) + '%';
+}
+
+prevBtn.addEventListener('click', ()=>{
+  if(index>0) index--;
+  renderQuestion();
+});
+
+nextBtn.addEventListener('click', ()=>{
+  if(!answers[index]){ alert('Please select the option that feels most like you.'); return; }
+  index++;
+  renderQuestion();
+});
+
+finishBtn.addEventListener('click', ()=>{
+  if(!answers[index]){ alert('Please select the option that feels most like you.'); return; }
+  Object.keys(answers).forEach(i=>{
+    const t = answers[i];
+    scores[t] = (scores[t] || 0) + 1;
+  });
+  showResults();
+});
+
+function showResults(){
+  const totalAnswered = Object.values(scores).reduce((a,b)=>a+b,0) || 1;
+  const pct = {};
+  Object.keys(scores).forEach(k=> pct[k] = Math.round((scores[k]/totalAnswered)*100));
+  const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const primary = sorted[0] ? sorted[0][0] : 'analytical';
+  const secondary = sorted[1] ? sorted[1][0] : null;
+
+  const labels = {
+    analytical: {title:'Analytical Thinker', desc:'You prefer solving problems with logic, research, and accuracy.', careers:['Data Analyst','Engineer','Researcher','Software Developer','Doctor','etc.'], pep:'Your curiosity and precision are strengths—keep sharpening technical skills.'},
+    empathetic: {title:'Empathetic Communicator', desc:'You connect with people, listen well, and help others grow.', careers:['Counselor','Teacher','Nurse','Social Worker','etc.'], pep:'Your empathy is powerful—use it to support and lead with care.'},
+    creative: {title:'Creative Innovator', desc:'You dream, design, and make original work that moves people.', careers:['Designer','Writer','Filmmaker','Product Designer','etc.'], pep:'Keep making and sharing—your ideas matter.'},
+    strategic: {title:'Strategic Leader', desc:'You set direction, organize people, and make things happen.', careers:['Product Manager','Consultant','Entrepreneur','Operations Manager','etc.'a], pep:'Your vision and decision-making can move teams and projects forward.'}
+  };
+
+  const primaryLabel = labels[primary];
+  resultHeader.innerHTML = `<div style="font-weight:700">${primaryLabel.title}</div><div style="margin-top:6px">${primaryLabel.desc}</div><div style="margin-top:8px;color:#004aad">${primaryLabel.pep}</div>`;
+  breakdown.innerHTML = `
+    <div style="margin-top:10px">
+      <div><strong>Score Breakdown</strong></div>
+      <div style="margin-top:8px">Analytical: ${scores.analytical || 0} (${pct.analytical || 0}%)</div>
+      <div>Empathetic: ${scores.empathetic || 0} (${pct.empathetic || 0}%)</div>
+      <div>Creative: ${scores.creative || 0} (${pct.creative || 0}%)</div>
+      <div>Strategic: ${scores.strategic || 0} (${pct.strategic || 0}%)</div>
+    </div>
+  `;
+
+  careerTags.innerHTML = '';
+  (primaryLabel.careers || []).forEach(c=>{
+    const t = document.createElement('div');
+    t.style.padding = '6px 10px';
+    t.style.background = '#f3f6ff';
+    t.style.borderRadius = '999px';
+    t.style.fontSize = '13px';
+    t.textContent = c;
+    careerTags.appendChild(t);
+  });
+
+  if(secondary){
+    const secLabel = labels[secondary];
+    const secDiv = document.createElement('div');
+    secDiv.style.marginTop = '12px';
+    secDiv.innerHTML = `<div style="font-weight:700">Secondary strength: ${secLabel.title}</div><div style="color:var(--muted);margin-top:6px">${secLabel.desc}</div>`;
+    breakdown.appendChild(secDiv);
+  }
+
+  document.getElementById('quizCard').style.display = 'none';
+  resultCard.style.display = 'block';
+  testLink.href = 'file:///C:/Users/Student/Downloads/WEBSIB%20(6).html';
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
