@@ -332,8 +332,12 @@ resetBtn.addEventListener('click', ()=>{
   renderList();
 });
 
-// Test button (replace URL as needed)
-testBtn.addEventListener('click', ()=>{
+<button id="testBtn">Test Quiz Link</button>
+
+<script>
+// Test button functionality
+const testBtn = document.getElementById('testBtn');
+testBtn.addEventListener('click', () => {
   // replace the href with your real quiz link
   const quiz = 'file:///C:/Users/Student/Downloads/career_quiz_full.html';
   if(quiz && quiz !== 'YOUR_CAREER_TEST_LINK_HERE'){
@@ -342,10 +346,12 @@ testBtn.addEventListener('click', ()=>{
     alert('Test link not set — replace YOUR_CAREER_TEST_LINK_HERE in the code with your quiz URL.');
   }
 });
+</script>
 
 // initial render for creative tab
 renderList();
 </script>
 </body>
 </html>
+
 
